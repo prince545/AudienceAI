@@ -5,6 +5,7 @@ import Link from "next/link"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { CheckCircle2, Home, BarChart2 } from "lucide-react"
+import { ThemeToggle } from "@/components/shared/ThemeToggle"
 
 export default function SessionEnded({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
@@ -18,8 +19,11 @@ export default function SessionEnded({ params }: { params: Promise<{ id: string 
   }, [id])
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-zinc-50 dark:bg-zinc-950 p-6 text-center">
-      <Card className="max-w-md w-full p-10 border-none shadow-2xl bg-white dark:bg-zinc-900 rounded-3xl">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-zinc-50 via-white to-white dark:from-zinc-950 dark:via-zinc-950 dark:to-zinc-950 p-6 text-center">
+      <Card className="max-w-md w-full p-10 border-none shadow-2xl bg-white dark:bg-zinc-900 rounded-3xl relative">
+        <div className="absolute top-4 right-4">
+          <ThemeToggle />
+        </div>
         <div className="flex justify-center mb-6">
             <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-full text-green-600">
                 <CheckCircle2 className="w-12 h-12" />

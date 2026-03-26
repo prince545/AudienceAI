@@ -17,6 +17,10 @@ export async function GET(
         where: { isHidden: false },
         orderBy: { createdAt: "desc" },
       },
+      polls: {
+        where: { isActive: true },
+        include: { options: true },
+      },
     },
   })
 

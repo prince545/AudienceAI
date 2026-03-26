@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft, MessageSquare, ThumbsUp, BarChart3, Clock, Download } from "lucide-react"
 import Logo from "@/components/shared/Logo"
+import { ThemeToggle } from "@/components/shared/ThemeToggle"
 
 export default function SessionAnalytics({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
@@ -26,9 +27,9 @@ export default function SessionAnalytics({ params }: { params: Promise<{ id: str
   }, [id])
 
   if (loading) return (
-    <div className="min-h-screen flex items-center justify-center bg-zinc-50 dark:bg-zinc-950">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-zinc-50 via-white to-white dark:from-zinc-950 dark:via-zinc-950 dark:to-zinc-950">
       <div className="animate-pulse flex flex-col items-center">
-        <div className="w-12 h-12 bg-purple-200 dark:bg-purple-900/40 rounded-full mb-4" />
+        <div className="w-12 h-12 bg-blue-200 dark:bg-blue-900/40 rounded-full mb-4" />
         <p className="text-zinc-500 text-sm">Crunching the numbers...</p>
       </div>
     </div>
@@ -37,9 +38,9 @@ export default function SessionAnalytics({ params }: { params: Promise<{ id: str
   if (!session) return <div className="p-20 text-center">Session not found.</div>
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 p-6">
+    <div className="min-h-screen bg-gradient-to-b from-zinc-50 via-white to-white dark:from-zinc-950 dark:via-zinc-950 dark:to-zinc-950 p-6">
       <div className="max-w-4xl mx-auto">
-        <div className="mb-8 flex items-center justify-between border-b border-zinc-100 dark:border-zinc-900 pb-6">
+        <div className="mb-8 flex items-center justify-between border-b border-zinc-100/60 dark:border-zinc-900/60 pb-6">
            <div className="flex items-center gap-6">
              <Logo />
              <Link href="/dashboard" className="flex items-center text-sm font-medium text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors">
@@ -47,15 +48,20 @@ export default function SessionAnalytics({ params }: { params: Promise<{ id: str
                Dashboard
              </Link>
            </div>
-           <Button onClick={() => window.print()} variant="outline" size="sm" className="hidden sm:flex h-9">
-              <Download className="w-4 h-4 mr-2" />
-              Export PDF
-           </Button>
+           <div className="flex items-center gap-2">
+             <div className="hidden sm:block">
+               <ThemeToggle />
+             </div>
+             <Button onClick={() => window.print()} variant="outline" size="sm" className="hidden sm:flex h-9">
+                <Download className="w-4 h-4 mr-2" />
+                Export PDF
+             </Button>
+           </div>
         </div>
 
         <div className="mb-10">
             <h1 className="text-4xl font-black text-zinc-900 dark:text-white tracking-tight mb-2 uppercase italic italic-none">
-                {session.title} <span className="text-purple-600">Post-Session Report</span>
+                {session.title} <span className="text-blue-600">Post-Session Report</span>
             </h1>
             <div className="flex items-center gap-4 text-sm text-zinc-500">
                 <div className="flex items-center gap-1.5">
@@ -78,7 +84,7 @@ export default function SessionAnalytics({ params }: { params: Promise<{ id: str
             </Card>
 
             <Card className="p-6 bg-white dark:bg-zinc-900 border-none shadow-sm flex flex-col items-center text-center">
-                <div className="p-3 bg-purple-50 dark:bg-purple-900/20 rounded-xl mb-4 text-purple-600">
+                <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl mb-4 text-blue-600">
                     <ThumbsUp className="w-6 h-6" />
                 </div>
                 <p className="text-3xl font-black text-zinc-900 dark:text-white">
@@ -101,14 +107,14 @@ export default function SessionAnalytics({ params }: { params: Promise<{ id: str
             <Card className="p-8 bg-zinc-900 text-white border-none shadow-xl overflow-hidden relative">
                 <div className="relative z-10">
                     <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
-                        <Sparkles className="w-5 h-5 text-purple-400" />
+                        <Sparkles className="w-5 h-5 text-blue-400" />
                         Key Takeaways
                     </h2>
                     <p className="text-zinc-400 text-sm leading-relaxed max-w-xl">
                         Based on the question patterns, your audience was most interested in the implementation roadmap and the upcoming AI features. There was 42% more engagement during the second half of the session.
                     </p>
                 </div>
-                <div className="absolute top-0 right-0 w-64 h-64 bg-purple-600/10 blur-[100px] -mr-32 -mt-32" />
+                <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/10 blur-[100px] -mr-32 -mt-32" />
             </Card>
         </div>
       </div>
