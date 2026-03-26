@@ -7,7 +7,9 @@ const dev = process.env.NODE_ENV !== "production"
 const app = next({ dev })
 const handle = app.getRequestHandler()
 
+console.log(">>> SERVER STARTING UP (prepare phase)...")
 app.prepare().then(() => {
+  console.log(">>> NEXT.JS PREPARED. SETTING UP SERVER...")
   const httpServer = createServer((req, res) => {
     const parsedUrl = parse(req.url!, true)
     handle(req, res, parsedUrl)
