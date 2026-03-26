@@ -1,6 +1,5 @@
 <div align="center">
 
-<img src="./public/assets/landing_page_demo.webp" alt="AudienceAI Landing Page Demo" width="100%" style="border-radius: 12px;" />
 
 # 🎙️ AudienceAI
 
