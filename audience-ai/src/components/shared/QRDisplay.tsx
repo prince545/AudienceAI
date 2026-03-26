@@ -7,9 +7,21 @@ export default function QRDisplay({ code }: { code: string }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
-    if (!canvasRef.current) return
-    const url = `${window.location.origin}/join/${code}`
-    QRCode.toCanvas(canvasRef.current, url, { width: 200 })
+    if (!canvasRef.current || !code) return
+    
+    // Sanitize code: remove null characters or weird binary artifacts
+    const cleanCode = String(code).replace(/\0/g, "").trim()
+    const url = `${window.location.origin}/join/${cleanCode}`
+    
+    console.log("Generating QR for:", url)
+    QRCode.toCanvas(canvasRef.current, url, { 
+      width: 250,
+      margin: 2,
+      color: {
+        dark: "#000000",
+        light: "#ffffff"
+      }
+    })
   }, [code])
 
   return (

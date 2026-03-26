@@ -6,8 +6,7 @@ export function useSocket(sessionId: string) {
   const [isConnected, setIsConnected] = useState(false)
 
   useEffect(() => {
-    const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || ""
-    const socket = io(socketUrl, {
+    const socket = io({
       transports: ["websocket"],
     })
 

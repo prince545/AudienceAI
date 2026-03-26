@@ -27,7 +27,7 @@ export async function POST(req: Request) {
   const { title } = await req.json()
   if (!title) return NextResponse.json({ error: "Title required" }, { status: 400 })
 
-  const code = nanoid(6).toUpperCase() // e.g. "X7K2PQ"
+  const code = String(nanoid(6).toUpperCase()) // e.g. "X7K2PQ"
 
   const newSession = await prisma.session.create({
     data: {
