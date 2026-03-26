@@ -7,10 +7,20 @@ export default function QRDisplay({ code }: { code: string }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
-    if (!canvasRef.current || !code) return
+    if (!canvasRef.current) return
+    if (!code || code === "...") {
+      console.warn("QRDisplay: No code provided yet.")
+      return
+    }
     
     // Sanitize code: remove null characters or weird binary artifacts
     const cleanCode = String(code).replace(/\0/g, "").trim()
+    
+    if (cleanCode === "undefined" || cleanCode === "null") {
+      console.error("QRDisplay: Invalid code received:", code)
+      return
+    }
+
     const url = `${window.location.origin}/join/${cleanCode}`
     
     console.log("Generating QR for:", url)
@@ -21,6 +31,8 @@ export default function QRDisplay({ code }: { code: string }) {
         dark: "#000000",
         light: "#ffffff"
       }
+    }, (err) => {
+      if (err) console.error("QRCode Error:", err)
     })
   }, [code])
 

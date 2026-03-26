@@ -48,19 +48,30 @@ export default function PresenterView({ params }: { params: Promise<{ id: string
   }
 
   useEffect(() => {
+    console.log("Fetching session data for ID:", id)
     fetch(`/api/sessions/${id}`)
-      .then((r) => r.json())
+      .then((r) => {
+        console.log("Session API Status:", r.status)
+        return r.json()
+      })
       .then((data) => {
+          console.log("Session API Data:", data)
+          if (data.error) {
+            console.error("Session API Error:", data.error)
+          }
           setSessionData(data)
           const active = data.polls?.find((p: any) => p.status === "ACTIVE" || p.isActive)
           if (active) setActivePoll(active)
       })
-      .catch(console.error)
+      .catch((err) => console.error("Session Fetch Critical Error:", err))
 
     fetch(`/api/sessions/${id}/questions`)
       .then((r) => r.json())
-      .then(setQuestions)
-      .catch(console.error)
+      .then((data) => {
+        console.log("Questions Loaded:", data.length)
+        setQuestions(data)
+      })
+      .catch((err) => console.error("Questions Fetch Error:", err))
   }, [id])
 
   useEffect(() => {
