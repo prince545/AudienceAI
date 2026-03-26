@@ -2,9 +2,8 @@
 
 import { useEffect, useState, use } from "react"
 import { useSocket } from "@/hooks/useSocket"
-import { Share2, Radio } from "lucide-react"
+import { Share2, Radio, Sparkles } from "lucide-react"
 import SubmitQuestion from "@/components/audience/SubmitQuestion"
-import QuestionList from "@/components/audience/QuestionList"
 import PollVotePanel from "@/components/audience/PollVotePanel"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -129,14 +128,11 @@ export default function AudienceView({ params }: { params: Promise<{ code: strin
           {activePoll && <PollVotePanel poll={activePoll} />}
           <SubmitQuestion sessionId={session.id} />
           
-          <div className="pt-6">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-lg font-bold text-slate-900 dark:text-white">Recent Questions</h2>
-              <div className="text-xs font-semibold px-2.5 py-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-full">
-                {questions.length} total
-              </div>
+          <div className="pt-8 text-center">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-2xl text-[12px] font-bold border border-blue-100 dark:border-blue-800/50">
+                <Sparkles className="w-4 h-4" />
+                Your questions are sent directly to the presenter
             </div>
-            <QuestionList questions={questions} />
           </div>
         </div>
       </main>
