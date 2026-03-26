@@ -1,0 +1,50 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Session {
+  id          String     @id @default(cuid())
+  title       String
+  code        String     @unique  // 6-char join code e.g. "ABC123"
+  isActive    Boolean    @default(true)
+  userId      String     // Clerk user ID
+  questions   Question[]
+  polls       Poll[]
+  createdAt   DateTime   @default(now())
+  endedAt     DateTime?
+}
+
+model Question {
+  id          String   @id @default(cuid())
+  text        String
+  upvotes     Int      @default(0)
+  isAnswered  Boolean  @default(false)
+  isHidden    Boolean  @default(false)
+  sessionId   String
+  session     Session  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+}
+
+model Poll {
+  id          String    @id @default(cuid())
+  question    String
+  isActive    Boolean   @default(true)
+  sessionId   String
+  session     Session   @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  options     Option[]
+  createdAt   DateTime  @default(now())
+}
+
+model Option {
+  id        String   @id @default(cuid())
+  text      String
+  votes     Int      @default(0)
+  pollId    String
+  poll      Poll     @relation(fields: [pollId], references: [id], onDelete: Cascade)
+}
+

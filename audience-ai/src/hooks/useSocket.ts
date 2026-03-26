@@ -1,0 +1,33 @@
+import { useEffect, useRef, useState } from "react"
+import { io, Socket } from "socket.io-client"
+
+export function useSocket(sessionId: string) {
+  const socketRef = useRef<Socket | null>(null)
+  const [isConnected, setIsConnected] = useState(false)
+
+  useEffect(() => {
+    // When path is not specified, it defaults to /socket.io
+    const socket = io({
+      transports: ["websocket"],
+    })
+
+    socket.on("connect", () => {
+      setIsConnected(true)
+      if (sessionId) {
+        socket.emit("join-session", sessionId)
+      }
+    })
+
+    socket.on("disconnect", () => {
+      setIsConnected(false)
+    })
+
+    socketRef.current = socket
+
+    return () => {
+      socket.disconnect()
+    }
+  }, [sessionId])
+
+  return { socket: socketRef.current, isConnected }
+}
