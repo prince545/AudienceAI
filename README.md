@@ -101,4 +101,3 @@ AudienceAI explicitly moves away from "AI-generated" generic aesthetics (e.g. fl
 ---
 
 <div align="center">
-  <p>Built with ❤️ by You.</p>
