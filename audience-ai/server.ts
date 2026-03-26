@@ -34,8 +34,11 @@ app.prepare().then(() => {
     })
   })
 
-  const PORT = process.env.PORT || 3000
-  httpServer.listen(PORT, () => {
-    console.log(`> Ready on http://localhost:${PORT}`)
+  const PORT = Number(process.env.PORT) || 3000
+  httpServer.listen(PORT, "0.0.0.0", () => {
+    console.log(`> Ready on http://0.0.0.0:${PORT}`)
   })
+}).catch((err) => {
+    console.error("FATAL ERROR during server preparation:", err)
+    process.exit(1)
 })
