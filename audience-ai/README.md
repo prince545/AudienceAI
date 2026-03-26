@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="./public/assets/landing_page_demo.webp" alt="AudienceAI Landing Page Demo" width="100%" style="border-radius: 12px;" />
+![AudienceAI Demo](./public/assets/landing_page_demo.webp)
 
 # 🎙️ AudienceAI
 
@@ -33,19 +33,12 @@ Participants simply scan a generated QR code from their phones to ask questions 
 
 ## 📸 Premium Interfaces
 
-### The Audience View
-A frictionless mobile-first experience. Beautifully layered floating inputs and native-feeling interactions ensure the audience isn't distracted by bad software.
+### Premium Interfaces
+
 <div align="center">
-  <img src="./public/assets/audience_view.png" alt="Audience View" width="80%" style="border-radius: 12px; border: 1px solid #333;" />
+  <img src="./public/assets/Screenshot 2026-03-26 174309.png" alt="AudienceAI Interface Overview" width="100%" style="border-radius: 12px; border: 1px solid #333;" />
 </div>
 
-<br/>
-
-### The Presenter Command Center
-A desktop-first, highly functional dashboard. Live polls display deep graphical physics while managing thousands of incoming votes.
-<div align="center">
-  <img src="./public/assets/presenter_poll.png" alt="Presenter Dashboard" width="80%" style="border-radius: 12px; border: 1px solid #333;" />
-</div>
 
 ---
 
