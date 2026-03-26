@@ -38,8 +38,15 @@ export default function QRDisplay({ code }: { code: string }) {
 
   return (
     <div className="flex flex-col items-center">
-      <canvas ref={canvasRef} />
-      <p className="text-xs text-gray-400 mt-2">Scan to join</p>
+      <div className="bg-white p-2 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800/50 mb-3">
+        <canvas ref={canvasRef} />
+      </div>
+      <div className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-800 max-w-[200px] overflow-hidden">
+        <p className="text-[9px] font-mono text-slate-500 dark:text-slate-400 truncate text-center">
+          {code && code !== "..." ? `${window.location.origin}/join/${code.trim().toUpperCase()}` : "Generating link..."}
+        </p>
+      </div>
+      <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mt-3">Scan to join</p>
     </div>
   )
 }

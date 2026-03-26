@@ -192,10 +192,12 @@ export default function LandingPage() {
                     <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
                   </Button>
                 </Link>
-                <Button size="lg" variant="outline" className="h-14 px-8 rounded-full border-slate-200 dark:border-zinc-800 bg-white/50 dark:bg-zinc-900/50 backdrop-blur-sm hover:bg-slate-50 dark:hover:bg-zinc-800 text-slate-900 dark:text-white group transition-all duration-300">
-                  <ChevronRight className="mr-2 h-5 w-5 text-slate-400 group-hover:text-blue-500 transition-colors" />
-                  Watch Demo
-                </Button>
+                <Link href="/join">
+                  <Button size="lg" variant="outline" className="h-14 px-8 rounded-full border-slate-200 dark:border-zinc-800 bg-white/50 dark:bg-zinc-900/50 backdrop-blur-sm hover:bg-slate-50 dark:hover:bg-zinc-800 text-slate-900 dark:text-white group transition-all duration-300">
+                    <Users className="mr-2 h-5 w-5 text-slate-400 group-hover:text-blue-500 transition-colors" />
+                    Join a Session
+                  </Button>
+                </Link>
               </div>
             </motion.div>
 

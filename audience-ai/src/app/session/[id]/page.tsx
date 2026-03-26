@@ -23,6 +23,8 @@ import Logo from "@/components/shared/Logo"
 import { ThemeToggle } from "@/components/shared/ThemeToggle"
 import { motion, AnimatePresence } from "framer-motion"
 import { Input } from "@/components/ui/input"
+import { toast } from "sonner"
+import { Copy, Check } from "lucide-react"
 
 export default function PresenterView({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter()
@@ -34,6 +36,7 @@ export default function PresenterView({ params }: { params: Promise<{ id: string
   const [activeTab, setActiveTab] = useState<"questions" | "polls">("questions")
   const { socket, isConnected } = useSocket(id)
   const [search, setSearch] = useState("")
+  const [copied, setCopied] = useState(false)
 
   async function endSession() {
     if (!confirm("Are you sure you want to end this live session?")) return
@@ -45,6 +48,15 @@ export default function PresenterView({ params }: { params: Promise<{ id: string
     })
     
     router.push(`/session/${id}/analytics`)
+  }
+
+  function copyJoinLink() {
+    if (!sessionData?.code) return
+    const url = `${window.location.origin}/join/${sessionData.code}`
+    navigator.clipboard.writeText(url)
+    setCopied(true)
+    toast.success("Join link copied to clipboard!")
+    setTimeout(() => setCopied(false), 2000)
   }
 
   useEffect(() => {
@@ -130,8 +142,16 @@ export default function PresenterView({ params }: { params: Promise<{ id: string
                 <span className="text-[10px] uppercase font-bold tracking-widest text-slate-500">Join Code</span>
                 <span className="text-sm font-black bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-md tracking-widest">{sessionData?.code || "..."}</span>
              </div>
-             <QRDisplay code={sessionData?.code || ""} />
-             <p className="text-[11px] font-medium text-slate-500 dark:text-slate-400 mt-4 text-center max-w-[200px]">Scan to participate in the live Q&A</p>
+              <QRDisplay code={sessionData?.code || ""} />
+              <Button 
+                onClick={copyJoinLink}
+                variant="outline"
+                className="w-full mt-4 h-12 rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-[#030712] hover:bg-slate-50 dark:hover:bg-slate-800 transition-all font-semibold text-[12px] flex items-center justify-center gap-2 group"
+              >
+                {copied ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4 text-blue-500 group-hover:scale-110 transition-transform" />}
+                {copied ? "Copied!" : "Copy Join Link"}
+              </Button>
+              <p className="text-[11px] font-medium text-slate-500 dark:text-slate-400 mt-4 text-center max-w-[200px]">Scan or share link for participants to join</p>
           </div>
           
           <div className="space-y-3">
