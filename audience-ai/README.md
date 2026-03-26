@@ -1,5 +1,3 @@
-<div align="center">
-
 ![AudienceAI Demo](./public/assets/landing_page_demo.webp)
 
 # 🎙️ AudienceAI
@@ -38,7 +36,6 @@ Participants simply scan a generated QR code from their phones to ask questions 
 <div align="center">
   <img src="./public/assets/Screenshot 2026-03-26 174309.png" alt="AudienceAI Interface Overview" width="100%" style="border-radius: 12px; border: 1px solid #333;" />
 </div>
-
 
 ---
 
