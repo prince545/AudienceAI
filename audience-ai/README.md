@@ -1,3 +1,5 @@
+<div align="center">
+
 ![AudienceAI Demo](./public/assets/landing_page_demo.webp)
 
 # 🎙️ AudienceAI
@@ -31,7 +33,6 @@ Participants simply scan a generated QR code from their phones to ask questions 
 
 ## 📸 Premium Interfaces
 
-### Premium Interfaces
 
 <div align="center">
   <img src="./public/assets/Screenshot 2026-03-26 174309.png" alt="AudienceAI Interface Overview" width="100%" style="border-radius: 12px; border: 1px solid #333;" />
@@ -88,6 +89,17 @@ AudienceAI uses a custom server setup to simultaneously run Next.js and Socket.I
 npm run dev
 ```
 Navigate to `http://localhost:3000` to see the landing page!
+
+---
+
+## 🚢 Deployment
+
+Since **AudienceAI** uses WebSockets for real-time Q&A and Polling, it requires a persistent Node.js environment.
+
+- **Recommended**: Deploy to **[Railway](https://railway.app/)** or **[Render](https://render.com/)**.
+- **Serverless**: Note that standard Vercel deployments do not natively support Socket.IO without a separate backend.
+
+For step-by-step instructions, see our **[Deployment Guide](./deployment_guide.md)**.
 
 ---
 
