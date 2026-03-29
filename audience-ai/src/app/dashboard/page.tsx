@@ -93,155 +93,159 @@ export default function Dashboard() {
   )
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#030712] text-slate-900 dark:text-slate-100 font-sans selection:bg-blue-500/30 relative overflow-x-hidden pb-20">
-      {/* Background glow for dark mode */}
-      <div className="fixed inset-0 pointer-events-none z-0 hidden dark:block">
-         <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-blue-500/5 blur-[120px] rounded-full translate-x-1/3 -translate-y-1/3" />
+    <div className="min-h-screen bg-background text-foreground font-sans selection:bg-primary/30 relative overflow-x-hidden pb-32 noise">
+      {/* Background glow for premium look */}
+      <div className="fixed inset-0 pointer-events-none z-0">
+         <div className="absolute top-0 right-0 w-[1000px] h-[1000px] bg-primary/5 blur-[150px] rounded-full translate-x-1/3 -translate-y-1/3" />
+         <div className="absolute bottom-0 left-0 w-[800px] h-[800px] bg-accent/5 blur-[120px] rounded-full -translate-x-1/4 translate-y-1/4" />
       </div>
 
-      <header className="px-6 lg:px-12 h-20 flex items-center border-b border-white/20 dark:border-white/5 bg-white/70 dark:bg-[#030712]/70 sticky top-0 z-40 backdrop-blur-xl">
+      <header className="px-6 lg:px-12 h-20 flex items-center border-b border-white/5 bg-background/60 sticky top-0 z-40 backdrop-blur-xl">
         <Logo />
-        <div className="ml-auto flex items-center gap-5">
+        <div className="ml-auto flex items-center gap-6">
              <ThemeToggle />
-             <div className="h-6 w-px bg-slate-200 dark:bg-slate-800" />
+             <div className="h-6 w-px bg-white/10" />
              <UserButton />
-             <Button variant="ghost" onClick={() => router.push("/")} className="text-sm font-semibold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors">Exit</Button>
+             <Button variant="ghost" onClick={() => router.push("/")} className="text-sm font-bold text-muted-foreground hover:text-foreground transition-all">Exit</Button>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-6 py-12 relative z-10 w-full">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-8 mb-16">
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: "easeOut" }}>
-                <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight mb-3">
-                  Welcome Back, <span className="bg-gradient-to-r from-blue-600 to-indigo-500 bg-clip-text text-transparent">{user?.firstName || "Presenter"}</span>
+      <main className="max-w-7xl mx-auto px-6 py-16 relative z-10 w-full">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-10 mb-20">
+            <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6, ease: "easeOut" }}>
+                <h1 className="text-4xl md:text-6xl font-black tracking-tighter mb-4 leading-none">
+                  Welcome Back, <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">{user?.firstName || "Presenter"}</span>
                 </h1>
-                <p className="text-slate-500 dark:text-slate-400 font-medium text-lg max-w-xl">
-                  Manage your interactive sessions, monitor live engagement, and analyze post-event data.
+                <p className="text-muted-foreground font-medium text-xl max-w-2xl leading-relaxed">
+                  Manage your interactive sessions, monitor live engagement, and analyze post-event data with precision.
                 </p>
             </motion.div>
             
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1, ease: "easeOut" }} className="w-full md:w-auto">
-                <div className="relative group w-full md:w-72">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
+            <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6, ease: "easeOut" }} className="w-full md:w-auto">
+                <div className="relative group w-full md:w-80">
+                    <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
                     <Input 
-                        placeholder="Search your sessions..." 
+                        placeholder="Filter sessions..." 
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        className="pl-11 h-12 bg-white dark:bg-[#0f111a] border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm focus:ring-2 focus:ring-blue-500/50 text-sm font-medium transition-all"
+                        className="pl-12 h-14 bg-white/5 border-white/10 rounded-2xl shadow-xl focus:ring-2 focus:ring-primary/50 text-sm font-bold transition-all placeholder:text-muted-foreground/50"
                     />
                 </div>
             </motion.div>
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-8 items-start">
-          {/* Create Session Card */}
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2 }}>
-            <Card className="p-8 border-none shadow-xl shadow-blue-500/10 dark:shadow-none bg-gradient-to-br from-blue-600 to-indigo-600 text-white rounded-[2rem] relative overflow-hidden group min-h-[380px] flex flex-col justify-between hover:shadow-2xl hover:shadow-blue-500/20 transition-all duration-500 hover:-translate-y-1">
+        <div className="grid lg:grid-cols-3 gap-10 items-start">
+          {/* Create Session Card - Premium Feature Action */}
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.6, delay: 0.1 }}>
+            <Card className="p-10 border-none bg-gradient-to-br from-primary via-primary to-accent text-primary-foreground rounded-[2.5rem] relative overflow-hidden group min-h-[420px] flex flex-col justify-between shadow-2xl shadow-primary/20 hover:shadow-primary/40 transition-all duration-700 hover:-translate-y-1">
                 <div className="relative z-10">
-                    <div className="p-3 bg-white/20 backdrop-blur-md border border-white/20 rounded-2xl w-fit mb-6 shadow-sm shadow-black/10">
-                        <Plus className="w-6 h-6" />
+                    <div className="p-4 bg-white/15 backdrop-blur-xl border border-white/20 rounded-2xl w-fit mb-8 shadow-2xl">
+                        <Plus className="w-8 h-8" />
                     </div>
-                    <h2 className="text-2xl font-extrabold tracking-tight mb-2">New Session</h2>
-                    <p className="text-blue-100/90 text-sm font-medium mb-8 leading-relaxed max-w-[200px]">
-                      Ready to engage your audience? Create a secure room in seconds.
+                    <h2 className="text-3xl font-black tracking-tight mb-4">New Session</h2>
+                    <p className="text-white/80 text-base font-medium mb-10 leading-relaxed max-w-[240px]">
+                      Ready to engage your audience? Launch a high-performance room in seconds.
                     </p>
                 </div>
-                <div className="relative z-10 space-y-4">
+                <div className="relative z-10 space-y-5">
                     <Input 
-                        placeholder="e.g. Q4 All-Hands Meeting" 
+                        placeholder="e.g. Annual Tech Symposium" 
                         value={title} 
                         onChange={(e) => setTitle(e.target.value)}
-                        className="bg-black/20 dark:bg-black/40 border-white/10 text-white placeholder:text-white/40 h-14 rounded-2xl backdrop-blur-md focus:border-white/30 focus:ring-1 focus:ring-white/30 transition-all"
+                        className="bg-black/20 border-white/10 text-white placeholder:text-white/30 h-16 rounded-2xl backdrop-blur-md focus:border-white/30 focus:ring-1 focus:ring-white/30 transition-all font-bold"
                     />
                     <Button 
                         onClick={createSession} 
                         disabled={creating || !title.trim()}
-                        className="w-full bg-white text-blue-600 hover:bg-slate-50 h-14 rounded-2xl font-bold uppercase tracking-widest shadow-lg shadow-black/10 transition-transform active:scale-95 disabled:opacity-80 disabled:hover:bg-white"
+                        className="w-full bg-white text-primary hover:bg-white/90 h-16 rounded-2xl font-black uppercase tracking-[0.2em] text-[11px] shadow-2xl shadow-black/20 transition-all active:scale-95 disabled:opacity-50"
                     >
-                        {creating ? "Launching..." : "Launch Session"}
+                        {creating ? "Deploying..." : "Launch Session"}
                     </Button>
                 </div>
-                {/* Background flourish inside card */}
-                <div className="absolute top-0 right-0 w-80 h-80 bg-white/10 blur-[80px] -mr-32 -mt-32 rounded-full pointer-events-none" />
-                <div className="absolute bottom-0 right-0 w-64 h-64 bg-black/10 blur-[60px] -mr-20 -mb-20 rounded-full pointer-events-none" />
+                {/* Visual Flourishes */}
+                <div className="absolute top-0 right-0 w-96 h-96 bg-accent/20 blur-[100px] -mr-32 -mt-32 rounded-full pointer-events-none group-hover:bg-accent/30 transition-colors" />
+                <div className="absolute bottom-0 right-0 w-72 h-72 bg-black/20 blur-[80px] -mr-20 -mb-20 rounded-full pointer-events-none" />
             </Card>
           </motion.div>
 
           {/* Sessions List */}
-          <div className="lg:col-span-2 grid sm:grid-cols-2 gap-6 content-start">
+          <div className="lg:col-span-2 grid sm:grid-cols-2 gap-8 content-start">
             <AnimatePresence mode="popLayout">
                 {filtered.map((s, idx) => (
                     <motion.div 
                         key={s.id}
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.95, filter: "blur(10px)" }}
-                        transition={{ delay: idx * 0.05, duration: 0.4 }}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.9, filter: "blur(10px)" }}
+                        transition={{ delay: idx * 0.05, duration: 0.5 }}
                     >
-                        <Card className="p-6 md:p-8 h-full flex flex-col border border-slate-200 dark:border-slate-800/60 shadow-sm bg-white dark:bg-[#0f111a] hover:shadow-xl hover:shadow-slate-200/50 dark:hover:shadow-black/50 hover:border-blue-500/30 transition-all duration-300 rounded-[2rem] group relative pointer-events-auto">
-                            <div className="flex justify-between items-start mb-6">
-                                <div>
-                                    <div className="flex items-center gap-2 mb-3">
-                                        <div className={`w-2 h-2 rounded-full ${s.isActive ? "bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]" : "bg-slate-300 dark:bg-slate-700"}`} />
-                                        <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">{s.isActive ? "Live Now" : "Archived"}</p>
+                        <Card className="p-8 h-full flex flex-col border border-white/10 shadow-xl bg-white/5 hover:bg-white/10 hover:border-primary/40 hover:shadow-primary/10 transition-all duration-500 rounded-[2.5rem] group relative overflow-hidden">
+                            <div className="flex justify-between items-start mb-8 relative z-10">
+                                <div className="flex-1">
+                                    <div className="flex items-center gap-3 mb-4">
+                                        <div className={`w-2.5 h-2.5 rounded-full ${s.isActive ? "bg-emerald-500 shadow-[0_0_12px_rgba(16,185,129,0.8)] animate-pulse" : "bg-white/20"}`} />
+                                        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground">{s.isActive ? "Live Engine" : "Historical"}</p>
                                     </div>
-                                    <h3 className="text-xl font-bold tracking-tight leading-tight group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-2">{s.title}</h3>
+                                    <h3 className="text-2xl font-bold tracking-tight leading-tight group-hover:text-primary transition-all line-clamp-2">{s.title}</h3>
                                 </div>
-                                <div className="text-[10px] font-bold uppercase tracking-widest bg-slate-100 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800">
+                                <div className="text-[11px] font-black uppercase tracking-[0.15em] bg-white/5 text-muted-foreground px-4 py-2 rounded-xl border border-white/5 shadow-inner">
                                     {s.code}
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4 mb-8">
-                                <div className="flex flex-col gap-1 p-4 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-100 dark:border-slate-800/50">
-                                    <MessageSquare className="w-4 h-4 text-blue-500 mb-1" />
-                                    <span className="text-xl font-bold text-slate-900 dark:text-white leading-none">{s._count?.questions || 0}</span>
-                                    <span className="text-[10px] font-bold text-slate-400">QUESTIONS</span>
+                            <div className="grid grid-cols-2 gap-5 mb-10 relative z-10">
+                                <div className="flex flex-col gap-2 p-5 bg-black/20 rounded-3xl border border-white/5 group-hover:border-primary/10 transition-colors">
+                                    <MessageSquare className="w-5 h-5 text-primary mb-1 shadow-primary/20" />
+                                    <span className="text-2xl font-black leading-none">{s._count?.questions || 0}</span>
+                                    <span className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground">Inquiries</span>
                                 </div>
-                                <div className="flex flex-col gap-1 p-4 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-100 dark:border-slate-800/50">
-                                    <Calendar className="w-4 h-4 text-emerald-500 mb-1" />
-                                    <span className="text-sm font-bold text-slate-900 dark:text-white leading-none truncate mt-[3px]">
+                                <div className="flex flex-col gap-2 p-5 bg-black/20 rounded-3xl border border-white/5 group-hover:border-accent/10 transition-colors">
+                                    <Calendar className="w-5 h-5 text-accent mb-1 shadow-accent/20" />
+                                    <span className="text-sm font-black leading-none truncate mt-1 uppercase tracking-tight">
                                         {new Date(s.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                                     </span>
-                                    <span className="text-[10px] font-bold text-slate-400 mt-[2px]">DATE</span>
+                                    <span className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground mt-1">Timeline</span>
                                 </div>
                             </div>
 
-                            <div className="flex gap-3 mt-auto">
+                            <div className="flex gap-4 mt-auto relative z-10">
                                 <Button 
                                     onClick={() => router.push(`/session/${s.id}`)}
-                                    className="flex-[2] bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-blue-600 dark:hover:bg-blue-50 hover:text-white dark:hover:text-blue-600 rounded-xl h-12 font-bold text-xs uppercase tracking-wider transition-all shadow-md group/btn"
+                                    className="flex-[2] bg-foreground text-background hover:bg-primary hover:text-white rounded-2xl h-14 font-black text-[10px] uppercase tracking-[0.2em] transition-all shadow-xl active:scale-95 group/btn"
                                 >
-                                    <Play className="w-3.5 h-3.5 mr-2 group-hover/btn:scale-110 transition-transform" />
-                                    {s.isActive ? "Join" : "Open"}
+                                    <Play className="w-4 h-4 mr-2 group-hover/btn:translate-x-0.5 transition-transform" />
+                                    {s.isActive ? "Engage" : "Review"}
                                 </Button>
                                 <Button 
                                     onClick={() => router.push(`/session/${s.id}/analytics`)}
                                     variant="outline"
-                                    className="flex-1 border-slate-200 dark:border-slate-800 bg-transparent hover:bg-slate-50 dark:hover:bg-slate-800/50 rounded-xl h-12"
+                                    className="flex-1 border-white/10 bg-transparent hover:bg-white/10 rounded-2xl h-14"
                                 >
-                                    <BarChart2 className="w-4 h-4 text-slate-500" />
+                                    <BarChart2 className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
                                 </Button>
                                 <Button 
                                     variant="outline" 
                                     onClick={() => deleteSession(s.id)}
-                                    className="flex-1 border-slate-200 dark:border-slate-800 bg-transparent text-slate-400 hover:text-red-600 hover:border-red-200 dark:hover:border-red-900/50 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-xl h-12 transition-colors"
+                                    className="flex-1 border-white/10 bg-transparent text-muted-foreground hover:text-destructive hover:border-destructive/30 hover:bg-destructive/5 rounded-2xl h-14 transition-all"
                                 >
-                                    <Trash2 className="w-4 h-4" />
+                                    <Trash2 className="w-5 h-5" />
                                 </Button>
                             </div>
+                            
+                            {/* Card Background Bloom */}
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/2 blur-[60px] rounded-full pointer-events-none" />
                         </Card>
                     </motion.div>
                 ))}
             </AnimatePresence>
             
             {filtered.length === 0 && !loading && (
-                <div className="col-span-full flex flex-col items-center justify-center p-16 text-center bg-slate-50/50 dark:bg-[#0f111a]/50 rounded-[2.5rem] border border-dashed border-slate-300 dark:border-slate-800 min-h-[380px]">
-                    <div className="p-4 bg-white dark:bg-slate-900 rounded-full shadow-sm border border-slate-100 dark:border-slate-800 mb-6">
-                        <Sparkles className="w-8 h-8 text-blue-400" />
+                <div className="col-span-full flex flex-col items-center justify-center p-24 text-center bg-white/5 rounded-[3rem] border border-dashed border-white/10 min-h-[460px]">
+                    <div className="p-6 bg-white/5 rounded-3xl border border-white/5 mb-8 shadow-2xl">
+                        <Sparkles className="w-10 h-10 text-primary animate-pulse" />
                     </div>
-                    <p className="text-slate-900 dark:text-white font-bold text-lg mb-2">No sessions found</p>
-                    <p className="text-slate-500 dark:text-slate-400 font-medium text-sm max-w-xs">{search ? `No results matching "${search}".` : "You haven't created any sessions yet."}</p>
+                    <p className="text-2xl font-black mb-4 uppercase tracking-tighter">No sessions identified</p>
+                    <p className="text-muted-foreground font-medium text-lg max-w-sm leading-relaxed">{search ? `No results matching "${search}".` : "Your command center is empty. Launch your first interactive session above."}</p>
                 </div>
             )}
           </div>

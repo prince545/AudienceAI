@@ -1,299 +1,574 @@
 "use client"
 
 import Link from "next/link"
-import { Button } from "@/components/ui/button"
 import { Show, SignInButton, UserButton } from "@clerk/nextjs"
-import { 
-  ArrowRight, 
-  Sparkles, 
-  Zap, 
-  Shield, 
-  BarChart3, 
-  Users, 
-  ChevronRight,
+import {
+  ArrowRight,
+  Zap,
+  Shield,
+  BarChart3,
+  Users,
   MessageSquare,
   Brain,
   Activity,
   Globe,
   Lock,
-  Download,
   Star,
   CheckCircle,
   ExternalLink,
   Layout,
-  ThumbsUp
+  ChevronUp,
+  Mic,
+  Radio,
 } from "lucide-react"
-import Logo from "@/components/shared/Logo"
-import { motion } from "framer-motion"
+import { motion, useScroll, useTransform } from "framer-motion"
 import { ThemeToggle } from "@/components/shared/ThemeToggle"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 
-export default function LandingPage() {
-  const [mounted, setMounted] = useState(false)
-  
+/* ─────────────────────────────────────────────
+   Animated counter (IntersectionObserver)
+───────────────────────────────────────────── */
+function Counter({ to, suffix = "" }: { to: number; suffix?: string }) {
+  const [count, setCount] = useState(0)
+  const ref = useRef<HTMLSpanElement>(null)
   useEffect(() => {
-    setMounted(true)
-  }, [])
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return
+        observer.disconnect()
+        let start = 0
+        const step = Math.ceil(to / 60)
+        const timer = setInterval(() => {
+          start = Math.min(start + step, to)
+          setCount(start)
+          if (start >= to) clearInterval(timer)
+        }, 16)
+      },
+      { threshold: 0.5 }
+    )
+    if (ref.current) observer.observe(ref.current)
+    return () => observer.disconnect()
+  }, [to])
+  return <span ref={ref}>{count.toLocaleString()}{suffix}</span>
+}
+
+/* ─────────────────────────────────────────────
+   Marquee strip
+───────────────────────────────────────────── */
+function Marquee() {
+  const items = [
+    "10,000+ Concurrent Users",
+    "AI Clustering",
+    "Live Polls",
+    "Real-time Q&A",
+    "Enterprise SSO",
+    "Sub-50ms Latency",
+    "99.9% Uptime",
+    "Groq Llama 3.3",
+  ]
+  const doubled = [...items, ...items]
+  return (
+    <div className="overflow-hidden border-y border-border/50 bg-muted/30 backdrop-blur-sm py-4">
+      <motion.div
+        className="flex gap-12 whitespace-nowrap"
+        animate={{ x: ["0%", "-50%"] }}
+        transition={{ duration: 30, ease: "linear", repeat: Infinity }}
+      >
+        {doubled.map((item, i) => (
+          <span
+            key={i}
+            className="flex items-center gap-3 text-xs font-semibold tracking-widest uppercase text-muted-foreground"
+          >
+            <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary/60" />
+            {item}
+          </span>
+        ))}
+      </motion.div>
+    </div>
+  )
+}
+
+/* ─────────────────────────────────────────────
+   Audience wave SVG decoration
+───────────────────────────────────────────── */
+function AudienceWave() {
+  return (
+    <svg viewBox="0 0 600 120" className="w-full opacity-20 dark:opacity-30" fill="none">
+      {[0, 1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+        <motion.rect
+          key={i}
+          x={i * 68 + 8}
+          width={52}
+          rx={6}
+          fill="url(#barGrad)"
+          initial={{ height: 20, y: 100 }}
+          animate={{
+            height: [20, Math.random() * 80 + 20, 20],
+            y: [100, 100 - (Math.random() * 80 + 20), 100],
+          }}
+          transition={{
+            duration: 2 + Math.random() * 1.5,
+            repeat: Infinity,
+            repeatType: "mirror",
+            delay: i * 0.18,
+            ease: "easeInOut",
+          }}
+        />
+      ))}
+      <defs>
+        <linearGradient id="barGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="oklch(0.6 0.22 260)" />
+          <stop offset="100%" stopColor="oklch(0.7 0.25 285)" />
+        </linearGradient>
+      </defs>
+    </svg>
+  )
+}
+
+/* ─────────────────────────────────────────────
+   Main page
+───────────────────────────────────────────── */
+export default function LandingPage() {
+  const [hoveredFeature, setHoveredFeature] = useState<number | null>(null)
+  const heroRef = useRef<HTMLDivElement>(null)
+  const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] })
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.6], [1, 0])
+  const heroY = useTransform(scrollYProgress, [0, 0.6], [0, -60])
 
   const features = [
     {
       icon: Zap,
+      label: "01",
       title: "Real-time Q&A",
-      description: "Instant question submission and upvoting. Keep your audience engaged without the awkward silence.",
-      gradient: "from-blue-500/10 to-indigo-500/10",
-      iconColor: "text-blue-500"
+      description: "Zero-lag question submission, upvoting, and moderation. WebSocket-powered live updates keep everyone in sync.",
+      accentClass: "text-primary",
+      bgClass: "bg-primary/5 border-primary/15",
+      iconBg: "bg-primary/10",
     },
     {
       icon: Brain,
+      label: "02",
       title: "AI Clustering",
-      description: "Powered by Groq's Llama 3.3. Automatically group similar questions and discover trending topics.",
-      gradient: "from-indigo-500/10 to-slate-500/10",
-      iconColor: "text-indigo-500"
+      description: "Groq Llama 3.3 at 300×+ speed. Duplicate questions auto-merge. Topics surface organically.",
+      accentClass: "text-accent",
+      bgClass: "bg-accent/5 border-accent/15",
+      iconBg: "bg-accent/10",
     },
     {
       icon: BarChart3,
+      label: "03",
       title: "Live Polls",
-      description: "Create instant votes with 5 poll types. See results animate in real-time with beautiful visualizations.",
-      gradient: "from-emerald-500/10 to-teal-500/10",
-      iconColor: "text-emerald-500"
+      description: "Five poll types. Results animate in real-time. Word clouds, rankings, ratings — all built in.",
+      accentClass: "text-emerald-500",
+      bgClass: "bg-emerald-500/5 border-emerald-500/15",
+      iconBg: "bg-emerald-500/10",
     },
     {
       icon: Users,
-      title: "Scalable Rooms",
-      description: "Support 10,000+ concurrent participants with WebSocket clustering and Redis-backed state management.",
-      gradient: "from-orange-500/10 to-amber-500/10",
-      iconColor: "text-orange-500"
+      label: "04",
+      title: "Massive Scale",
+      description: "Redis-backed state, WebSocket clustering. 10K+ concurrent attendees with zero performance drop.",
+      accentClass: "text-orange-500",
+      bgClass: "bg-orange-500/5 border-orange-500/15",
+      iconBg: "bg-orange-500/10",
     },
     {
       icon: Shield,
+      label: "05",
       title: "Enterprise Security",
-      description: "End-to-end encryption, SSO support, and role-based access control for your organization.",
-      gradient: "from-slate-500/10 to-zinc-500/10",
-      iconColor: "text-slate-500"
+      description: "SSO, RBAC, end-to-end encryption, and audit logs for compliance-heavy teams.",
+      accentClass: "text-violet-500",
+      bgClass: "bg-violet-500/5 border-violet-500/15",
+      iconBg: "bg-violet-500/10",
     },
     {
       icon: Activity,
-      title: "Advanced Analytics",
-      description: "Track engagement metrics, export reports, and get AI-powered insights after every session.",
-      gradient: "from-cyan-500/10 to-blue-500/10",
-      iconColor: "text-cyan-500"
-    }
-  ]
-
-  const stats = [
-    { value: "10K+", label: "Concurrent Users", icon: Users },
-    { value: "<50ms", label: "Real-time Latency", icon: Zap },
-    { value: "99.9%", label: "Uptime SLA", icon: Shield },
-    { value: "5M+", label: "Questions Processed", icon: MessageSquare }
+      label: "06",
+      title: "Deep Analytics",
+      description: "Session heatmaps, engagement curves, exportable CSVs, and AI-written post-event reports.",
+      accentClass: "text-cyan-500",
+      bgClass: "bg-cyan-500/5 border-cyan-500/15",
+      iconBg: "bg-cyan-500/10",
+    },
   ]
 
   const testimonials = [
     {
       name: "Sarah Chen",
-      role: "Product Manager at TechCorp",
-      content: "AudienceAI transformed our all-hands meetings. The AI clustering feature alone saved us hours of manual question sorting.",
-      avatar: "SC",
-      rating: 5
+      role: "PM · TechCorp",
+      content: "The AI clustering saved us hours of question-sorting at our last all-hands. Audience loved the live polls.",
+      initials: "SC",
+      colorClass: "bg-primary/10 text-primary ring-1 ring-primary/20",
     },
     {
       name: "Michael Rodriguez",
-      role: "Lead Engineer at ScaleUp",
-      content: "Handled 5,000+ concurrent users without breaking a sweat. The real-time polling is incredibly smooth.",
-      avatar: "MR",
-      rating: 5
+      role: "Lead Eng · ScaleUp",
+      content: "5,000 concurrent users, zero hiccups. Polling is buttery smooth. We've tried everything — this wins.",
+      initials: "MR",
+      colorClass: "bg-accent/10 text-accent ring-1 ring-accent/20",
     },
     {
       name: "Dr. Emily Watson",
-      role: "Professor, Stanford University",
-      content: "My students love the anonymous Q&A. Engagement increased by 300% compared to traditional methods.",
-      avatar: "EW",
-      rating: 5
-    }
+      role: "Professor · Stanford",
+      content: "Anonymous Q&A completely changed classroom dynamics. Engagement up 300% in one semester.",
+      initials: "EW",
+      colorClass: "bg-emerald-500/10 text-emerald-500 ring-1 ring-emerald-500/20",
+    },
+  ]
+
+  const plans = [
+    {
+      name: "Starter",
+      price: "$0",
+      period: "/mo",
+      desc: "For small meetups and solo presenters.",
+      items: ["50 participants", "Unlimited questions", "Basic single-choice polls", "3 AI clusters/session"],
+      cta: "Start Free",
+      highlight: false,
+    },
+    {
+      name: "Pro",
+      price: "$29",
+      period: "/mo",
+      desc: "Everything for large events and conferences.",
+      items: ["500 participants", "Advanced AI insights", "All 5 poll types", "Custom branding", "Export analytics", "Priority support"],
+      cta: "Upgrade Now",
+      highlight: true,
+    },
+    {
+      name: "Enterprise",
+      price: "Custom",
+      period: "",
+      desc: "Unlimited scale, premium security.",
+      items: ["Unlimited participants", "Single Sign-On (SSO)", "Dedicated manager", "99.9% SLA", "Audit logs", "Whitelabeling"],
+      cta: "Contact Sales",
+      highlight: false,
+    },
   ]
 
   return (
-    <div className="flex flex-col min-h-screen bg-slate-50 dark:bg-zinc-950 font-sans selection:bg-blue-500/30">
-      {/* Dynamic Background with elegant grid */}
-      <div className="fixed inset-0 z-0 pointer-events-none">
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] opacity-30 dark:opacity-20 animate-pulse" style={{ background: 'radial-gradient(ellipse at top, rgba(37, 99, 235, 0.4) 0%, transparent 60%)' }} />
-      </div>
+    <div className="noise flex flex-col min-h-screen bg-background text-foreground overflow-x-hidden selection:bg-primary/20">
 
-      {/* Header */}
-      <header className="px-6 lg:px-12 h-20 flex items-center border-b border-white/20 dark:border-white/5 sticky top-0 bg-white/60 dark:bg-zinc-950/60 backdrop-blur-xl z-50">
-        <Logo />
-        <nav className="ml-auto flex gap-4 sm:gap-8 items-center">
-          <Link className="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors hidden md:block" href="#features">
-            Features
-          </Link>
-          <Link className="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors hidden md:block" href="#pricing">
-            Pricing
-          </Link>
-          <Link className="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors hidden md:block" href="#docs">
-            Docs
-          </Link>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,700&family=DM+Serif+Display:ital@0;1&display=swap');
+
+        body { font-family: 'DM Sans', system-ui, sans-serif; }
+        .serif { font-family: 'DM Serif Display', Georgia, serif; }
+
+        /* Uses --primary from design system */
+        .text-gradient-brand {
+          background: linear-gradient(135deg, var(--foreground) 20%, oklch(0.6 0.22 260) 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+        }
+
+        /* Uses mesh-gradient utility from globals.css */
+        .hero-ambient {
+          background:
+            radial-gradient(ellipse 80% 50% at 50% -5%, oklch(0.6 0.22 260 / 0.15) 0%, transparent 70%),
+            radial-gradient(ellipse 40% 40% at 80% 15%, oklch(0.7 0.25 285 / 0.10) 0%, transparent 60%);
+        }
+
+        .grid-dots {
+          background-image:
+            linear-gradient(oklch(0.5 0 0 / 0.04) 1px, transparent 1px),
+            linear-gradient(90deg, oklch(0.5 0 0 / 0.04) 1px, transparent 1px);
+          background-size: 48px 48px;
+        }
+
+        .card-lift {
+          transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.3s ease;
+        }
+        .card-lift:hover {
+          transform: translateY(-5px);
+          box-shadow: var(--glass-glow), 0 20px 50px -15px oklch(0 0 0 / 0.25);
+        }
+
+        /* Primary button — uses --primary token */
+        .btn-primary {
+          background: var(--primary);
+          color: var(--primary-foreground);
+          box-shadow: 0 4px 24px -6px oklch(0.55 0.22 260 / 0.5);
+          transition: box-shadow 0.25s ease, transform 0.25s ease, filter 0.2s ease;
+        }
+        .btn-primary:hover {
+          filter: brightness(1.1);
+          box-shadow: 0 8px 32px -6px oklch(0.55 0.22 260 / 0.65);
+          transform: translateY(-2px);
+        }
+
+        /* Ghost button — uses glass utility */
+        .btn-ghost {
+          background: var(--glass-bg);
+          border: 1px solid var(--glass-border);
+          backdrop-filter: blur(12px);
+          transition: background 0.2s ease;
+        }
+        .btn-ghost:hover { background: oklch(0.5 0 0 / 0.08); }
+
+        /* Pro plan glow — uses --primary */
+        .plan-pro {
+          box-shadow: var(--glass-glow), 0 32px 64px -20px oklch(0 0 0 / 0.3);
+          border: 1.5px solid oklch(0.6 0.22 260 / 0.3);
+        }
+
+        /* Feature card accent bar */
+        .feature-bar {
+          position: absolute;
+          bottom: 0; left: 0;
+          height: 2px;
+          width: 0;
+          background: var(--primary);
+          transition: width 0.45s ease;
+          opacity: 0.7;
+        }
+        .feature-wrap:hover .feature-bar { width: 100%; }
+      `}</style>
+
+      {/* ════════════════ HEADER ════════════════ */}
+      <header className="px-6 lg:px-14 h-[72px] flex items-center border-b border-border/50 sticky top-0 z-50 bg-background/80 backdrop-blur-xl">
+        <Link href="/" className="flex items-center gap-2 group">
+          <div className="w-8 h-8 rounded-xl flex items-center justify-center bg-primary transition-transform group-hover:scale-105">
+            <Mic className="w-4 h-4 text-primary-foreground" />
+          </div>
+          <span className="font-bold tracking-tight text-lg">AudienceAI</span>
+        </Link>
+
+        <nav className="ml-auto flex items-center gap-2 sm:gap-6">
+          {["Features", "Pricing", "Docs"].map((item) => (
+            <Link
+              key={item}
+              href={`#${item.toLowerCase()}`}
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors hidden md:block"
+            >
+              {item}
+            </Link>
+          ))}
           <Show when="signed-in">
-            <Link className="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors" href="/dashboard">
+            <Link href="/dashboard" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
               Dashboard
             </Link>
-            <div className="hidden md:flex">
-              <ThemeToggle />
-            </div>
+            <ThemeToggle />
             <UserButton />
           </Show>
           <Show when="signed-out">
             <SignInButton mode="modal">
-              <Button variant="ghost" className="text-sm font-medium text-slate-600 dark:text-slate-300">Sign In</Button>
+              <button className="text-sm text-muted-foreground hover:text-foreground transition-colors hidden md:block">
+                Sign In
+              </button>
             </SignInButton>
-            <div className="hidden md:flex">
-              <ThemeToggle />
-            </div>
+            <ThemeToggle />
             <Link href="/dashboard">
-              <Button className="bg-blue-600 text-white font-medium px-6 rounded-full shadow-[0_4px_14px_0_rgb(37,99,235,0.39)] hover:shadow-[0_6px_20px_rgba(37,99,235,0.23)] hover:bg-blue-700 transition-all border border-blue-500/50">
-                Get Started Free
-              </Button>
+              <button className="btn-primary text-sm font-semibold px-5 py-2.5 rounded-full">
+                Get Started
+              </button>
             </Link>
           </Show>
         </nav>
       </header>
-      
-      <main className="flex-1 relative z-10">
-        {/* Hero Section */}
-        <section className="relative w-full pt-24 pb-16 md:pt-32 md:pb-24 lg:pt-40 lg:pb-32 overflow-hidden">
-          <div className="container px-4 md:px-6 mx-auto relative z-10">
-            <motion.div 
-              initial={{ opacity: 0, y: 30 }}
+
+      <main className="flex-1">
+
+        {/* ════════════════ HERO ════════════════ */}
+        <section
+          ref={heroRef}
+          className="relative min-h-[90vh] flex flex-col items-center justify-center text-center px-6 py-24 overflow-hidden grid-dots"
+        >
+          <div className="hero-ambient absolute inset-0 pointer-events-none" />
+          <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-background to-transparent pointer-events-none" />
+
+          <motion.div style={{ opacity: heroOpacity, y: heroY }} className="relative z-10 max-w-5xl mx-auto">
+
+            {/* Badge */}
+            <motion.div
+              initial={{ opacity: 0, y: -16 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, ease: "easeOut" }}
-              className="flex flex-col items-center space-y-8 text-center"
+              transition={{ duration: 0.5 }}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold uppercase tracking-widest text-primary bg-primary/10 border border-primary/20 mb-10"
             >
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/80 dark:bg-zinc-900/80 text-blue-600 dark:text-blue-400 rounded-full text-sm font-semibold mb-4 backdrop-blur-md border border-slate-200/60 dark:border-zinc-800 shadow-sm">
-                <Sparkles className="w-4 h-4" />
-                <span>Powered by Groq Llama 3.3 — 300x Faster Inference</span>
-              </div>
-              
-              <h1 className="text-5xl font-extrabold tracking-tight sm:text-6xl md:text-7xl lg:text-8xl text-slate-900 dark:text-white max-w-5xl">
-                Run Smarter{" "}
-                <span className="relative whitespace-nowrap">
-                  <span className="relative z-10 text-blue-600 dark:text-blue-500">Q&A Sessions.</span>
-                  {/* Decorative underline */}
-                  <span className="absolute -bottom-2 left-0 right-0 h-3 bg-blue-500/20 dark:bg-blue-500/30 rounded-full z-0 transform -rotate-1"></span>
+              <Radio className="w-3.5 h-3.5 animate-pulse" />
+              Powered by Groq Llama 3.3 · 300× faster inference
+            </motion.div>
+
+            {/* Headline */}
+            <motion.h1
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.1 }}
+              className="serif font-bold leading-[1.06] tracking-tight mb-8"
+              style={{ fontSize: "clamp(2.8rem,8vw,6.5rem)" }}
+            >
+              <span className="text-foreground">Presentations</span>
+              <br />
+              <span className="text-gradient-brand">audiences remember.</span>
+            </motion.h1>
+
+            <motion.p
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.2 }}
+              className="text-muted-foreground text-lg md:text-xl leading-relaxed max-w-2xl mx-auto mb-12"
+            >
+              Real-time Q&A, AI-clustered questions, and live polls — seamlessly woven into every session.
+              Built for presenters who demand more.
+            </motion.p>
+
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.3 }}
+              className="flex flex-col sm:flex-row items-center justify-center gap-4"
+            >
+              <Link href="/dashboard">
+                <button className="btn-primary font-bold px-8 h-14 rounded-full text-base flex items-center gap-2 group">
+                  Start Presenting Free
+                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                </button>
+              </Link>
+              <Link href="/join">
+                <button className="btn-ghost text-foreground font-medium px-8 h-14 rounded-full text-base flex items-center gap-2 group">
+                  <Users className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                  Join a Session
+                </button>
+              </Link>
+            </motion.div>
+
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.8 }}
+              className="mt-8 text-xs text-muted-foreground/60"
+            >
+              Trusted by 2,000+ presenters · No credit card · 2 min setup
+            </motion.p>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, delay: 0.6 }}
+            className="relative z-10 w-full max-w-lg mx-auto mt-16"
+          >
+            <AudienceWave />
+          </motion.div>
+        </section>
+
+        {/* ════════════════ MARQUEE ════════════════ */}
+        <Marquee />
+
+        {/* ════════════════ LIVE MOCKUP ════════════════ */}
+        <section className="py-28 px-6">
+          <div className="max-w-6xl mx-auto">
+            <motion.div
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8 }}
+              className="glass rounded-3xl overflow-hidden"
+            >
+              {/* Chrome */}
+              <div className="flex items-center justify-between px-6 py-4 border-b border-border/50 bg-muted/20">
+                <div className="flex gap-2">
+                  {["oklch(0.6 0.2 25)", "oklch(0.75 0.18 80)", "oklch(0.65 0.2 145)"].map((c, i) => (
+                    <div key={i} className="w-3 h-3 rounded-full opacity-70" style={{ background: c }} />
+                  ))}
+                </div>
+                <div className="flex items-center gap-2 text-xs text-muted-foreground font-mono">
+                  <Lock className="w-3 h-3" />
+                  app.audienceai.io/session/live
+                </div>
+                <span className="flex items-center gap-1.5 text-xs font-bold text-emerald-500">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  LIVE
                 </span>
-              </h1>
-              
-              <p className="mx-auto max-w-[700px] text-slate-600 md:text-xl/relaxed lg:text-status-lg/relaxed dark:text-zinc-400">
-                The complete audience engagement platform for presenters. Real-time Q&A, AI-powered clustering, and live polling — seamlessly integrated into your workflow.
-              </p>
-              
-              <div className="flex flex-col sm:flex-row gap-4 pt-6">
-                <Link href="/dashboard">
-                  <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white px-8 h-14 text-lg font-semibold rounded-full shadow-[0_0_40px_-10px_rgba(37,99,235,0.6)] border border-blue-500/50 group transition-all duration-300">
-                    Start Presenting Free
-                    <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                  </Button>
-                </Link>
-                <Link href="/join">
-                  <Button size="lg" variant="outline" className="h-14 px-8 rounded-full border-slate-200 dark:border-zinc-800 bg-white/50 dark:bg-zinc-900/50 backdrop-blur-sm hover:bg-slate-50 dark:hover:bg-zinc-800 text-slate-900 dark:text-white group transition-all duration-300">
-                    <Users className="mr-2 h-5 w-5 text-slate-400 group-hover:text-blue-500 transition-colors" />
-                    Join a Session
-                  </Button>
-                </Link>
               </div>
-            </motion.div>
 
-            {/* Glassmorphic Mockup UI */}
-            <motion.div 
-              initial={{ opacity: 0, y: 50, rotateX: 10 }}
-              animate={{ opacity: 1, y: 0, rotateX: 0 }}
-              transition={{ duration: 1, delay: 0.2, ease: "easeOut" }}
-              className="mt-20 mx-auto max-w-5xl perspective-1000"
-            >
-              <div className="relative rounded-2xl bg-white/40 dark:bg-zinc-900/40 backdrop-blur-xl border border-white/60 dark:border-white/10 shadow-2xl shadow-slate-200/50 dark:shadow-black/50 overflow-hidden transform-gpu">
-                {/* Mockup Header */}
-                <div className="px-6 py-4 border-b border-black/5 dark:border-white/5 flex items-center justify-between bg-white/60 dark:bg-black/20">
-                  <div className="flex items-center gap-3">
-                    <div className="w-3 h-3 rounded-full bg-red-400" />
-                    <div className="w-3 h-3 rounded-full bg-amber-400" />
-                    <div className="w-3 h-3 rounded-full bg-emerald-400" />
+              {/* Body */}
+              <div className="p-8 grid md:grid-cols-3 gap-6">
+                {/* Q&A */}
+                <div className="md:col-span-2 space-y-3">
+                  <div className="flex items-center justify-between mb-5">
+                    <h3 className="font-semibold text-foreground">Trending Questions</h3>
+                    <span className="text-xs text-muted-foreground">248 participants · 34 questions</span>
                   </div>
-                  <div className="text-sm font-medium text-slate-500 dark:text-zinc-400 flex items-center gap-2">
-                    <Lock className="w-3 h-3" /> app.audienceai.io/session/live
-                  </div>
-                  <div className="w-16" /> {/* Spacer */}
+                  {[
+                    { votes: 124, q: "How do you manage shared state across 10K users?", user: "Anonymous", ago: "2m ago", active: true },
+                    { votes: 89, q: "Are you planning to add Discord integration soon?", user: "Sarah T.", ago: "5m ago", active: false },
+                    { votes: 55, q: "What's the strategy for handling network partition?", user: "Alex M.", ago: "8m ago", active: false },
+                  ].map((item, i) => (
+                    <motion.div
+                      key={i}
+                      initial={{ opacity: 0, x: -16 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: i * 0.1 + 0.3 }}
+                      className={`flex gap-4 p-4 rounded-xl border transition-all ${item.active
+                        ? "bg-primary/5 border-primary/20"
+                        : "bg-card border-border hover:bg-muted/20"
+                      }`}
+                    >
+                      <div className="flex flex-col items-center gap-1 min-w-[36px]">
+                        <ChevronUp className={`w-4 h-4 ${item.active ? "text-primary" : "text-muted-foreground"}`} />
+                        <span className={`text-sm font-bold ${item.active ? "text-primary" : "text-muted-foreground"}`}>
+                          {item.votes}
+                        </span>
+                      </div>
+                      <div>
+                        <p className="text-sm text-card-foreground font-medium leading-snug">{item.q}</p>
+                        <p className="text-xs text-muted-foreground mt-1.5">{item.user} · {item.ago}</p>
+                      </div>
+                    </motion.div>
+                  ))}
                 </div>
-                
-                {/* Mockup Body */}
-                <div className="p-8 grid md:grid-cols-3 gap-6">
-                  {/* Left Col: Q&A */}
-                  <div className="md:col-span-2 space-y-4">
-                    <div className="flex items-center justify-between mb-6">
-                      <h3 className="font-semibold text-lg text-slate-900 dark:text-white">Trending Questions</h3>
-                      <div className="text-xs font-bold uppercase tracking-wider text-blue-600 bg-blue-100 dark:bg-blue-900/30 px-3 py-1 rounded-full">Live</div>
-                    </div>
-                    
-                    {/* Mock Question 1 */}
-                    <div className="p-4 rounded-xl bg-white dark:bg-zinc-800 shadow-sm border border-slate-100 dark:border-zinc-700/50 flex gap-4">
-                      <div className="flex flex-col items-center gap-1">
-                        <button className="text-blue-600 dark:text-blue-500"><ThumbsUp className="w-5 h-5 fill-current" /></button>
-                        <span className="font-bold text-slate-700 dark:text-slate-300">124</span>
-                      </div>
-                      <div>
-                        <p className="font-medium text-slate-900 dark:text-slate-100">How do you manage state across 10k users?</p>
-                        <div className="flex items-center gap-2 mt-2 text-xs text-slate-500 dark:text-slate-400">
-                          <span className="font-medium">Anonymous</span> • <span>2 mins ago</span>
-                        </div>
-                      </div>
-                    </div>
 
-                    {/* Mock Question 2 */}
-                    <div className="p-4 rounded-xl bg-white/60 dark:bg-zinc-800/60 border border-slate-100 dark:border-zinc-700/50 flex gap-4 relative overflow-hidden">
-                      {/* AI Highlight subtle background */}
-                      <div className="absolute top-0 right-0 p-2"><Sparkles className="w-4 h-4 text-amber-500" /></div>
-                      <div className="flex flex-col items-center gap-1">
-                        <button className="text-slate-400 hover:text-blue-600"><ThumbsUp className="w-5 h-5" /></button>
-                        <span className="font-bold text-slate-700 dark:text-slate-300">89</span>
-                      </div>
-                      <div>
-                        <p className="font-medium text-slate-900 dark:text-slate-100 text-opacity-80">Are you planning to add Discord integration soon?</p>
-                        <div className="flex items-center gap-2 mt-2 text-xs text-slate-500 dark:text-slate-400">
-                          <span className="font-medium">Sarah T.</span> • <span>5 mins ago</span>
-                        </div>
-                      </div>
+                {/* Sidebar */}
+                <div className="space-y-4">
+                  <div className="p-5 rounded-xl border bg-accent/5 border-accent/20">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Brain className="w-4 h-4 text-accent" />
+                      <span className="text-xs font-bold uppercase tracking-widest text-accent">AI Insight</span>
                     </div>
+                    <p className="text-sm text-card-foreground/70 leading-relaxed">
+                      Your audience is focused on{" "}
+                      <strong className="text-card-foreground">backend scalability</strong>.
+                      Address Redis clustering next — 3 similar questions clustered.
+                    </p>
                   </div>
 
-                  {/* Right Col: AI Insights & Polls */}
-                  <div className="space-y-6">
-                     <div className="p-5 rounded-xl bg-gradient-to-br from-indigo-50 to-blue-50 dark:from-indigo-950/30 dark:to-blue-950/30 border border-indigo-100 dark:border-indigo-900/50">
-                        <div className="flex items-center gap-2 mb-3">
-                          <Brain className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
-                          <h4 className="font-bold text-indigo-900 dark:text-indigo-100">AI Summary</h4>
+                  <div className="p-5 rounded-xl border bg-card border-border">
+                    <h4 className="text-sm font-semibold text-card-foreground mb-3">Active Poll</h4>
+                    <p className="text-xs text-muted-foreground mb-4">Primary tech stack?</p>
+                    {[
+                      { label: "Next.js", pct: 65, color: "oklch(0.55 0.22 260)" },
+                      { label: "Remix", pct: 20, color: "oklch(0.7 0.25 285)" },
+                      { label: "Other", pct: 15, color: "oklch(0.5 0.02 260)" },
+                    ].map((bar, i) => (
+                      <div key={i} className="mb-2">
+                        <div className="flex justify-between text-xs text-muted-foreground mb-1">
+                          <span>{bar.label}</span><span>{bar.pct}%</span>
                         </div>
-                        <p className="text-sm text-indigo-800/80 dark:text-indigo-200/80 leading-relaxed">
-                          The audience is highly engaged with <strong>backend scalability</strong>. Consider addressing Redis clustering next.
-                        </p>
-                     </div>
+                        <div className="h-2 rounded-full bg-muted overflow-hidden">
+                          <motion.div
+                            initial={{ width: 0 }}
+                            whileInView={{ width: `${bar.pct}%` }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 1, delay: 0.5 + i * 0.1 }}
+                            className="h-full rounded-full"
+                            style={{ background: bar.color }}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
 
-                     <div className="p-5 rounded-xl bg-white dark:bg-zinc-800 shadow-sm border border-slate-100 dark:border-zinc-700/50">
-                        <h4 className="font-semibold text-slate-900 dark:text-white mb-4">Active Poll</h4>
-                        <p className="text-sm font-medium mb-3">What's your primary tech stack?</p>
-                        <div className="space-y-2">
-                          <div className="relative h-8 rounded-md bg-slate-100 dark:bg-zinc-900 overflow-hidden">
-                            <motion.div initial={{width: "0%"}} animate={{width: "65%"}} transition={{duration: 1, delay: 1}} className="absolute inset-y-0 left-0 bg-blue-500" />
-                            <div className="absolute inset-0 flex items-center justify-between px-3 text-xs font-bold text-slate-800 dark:text-white mix-blend-difference">
-                              <span>Next.js</span>
-                              <span>65%</span>
-                            </div>
-                          </div>
-                          <div className="relative h-8 rounded-md bg-slate-100 dark:bg-zinc-900 overflow-hidden">
-                            <motion.div initial={{width: "0%"}} animate={{width: "35%"}} transition={{duration: 1, delay: 1.2}} className="absolute inset-y-0 left-0 bg-slate-400 dark:bg-slate-600" />
-                            <div className="absolute inset-0 flex items-center justify-between px-3 text-xs font-bold text-slate-800 dark:text-white mix-blend-difference">
-                              <span>Other</span>
-                              <span>35%</span>
-                            </div>
-                          </div>
-                        </div>
-                     </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    {[{ val: "94%", label: "Satisfaction" }, { val: "12m", label: "Avg. Engage" }].map((s, i) => (
+                      <div key={i} className="p-3 rounded-xl border border-border bg-muted/30 text-center">
+                        <div className="text-xl font-bold text-card-foreground">{s.val}</div>
+                        <div className="text-xs text-muted-foreground mt-0.5">{s.label}</div>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
@@ -301,192 +576,251 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* Stats Strip */}
-        <section className="border-y border-slate-200/60 dark:border-zinc-800/60 bg-white/50 dark:bg-zinc-900/30 backdrop-blur-md">
-          <div className="container px-6 md:px-12 mx-auto py-12">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-              {stats.map((stat, idx) => (
-                <div key={idx} className="text-center group">
-                  <stat.icon className="w-6 h-6 mx-auto mb-3 text-slate-400 group-hover:text-blue-500 transition-colors" />
-                  <div className="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white mb-1">{stat.value}</div>
-                  <div className="text-sm font-medium text-slate-500 dark:text-zinc-400">{stat.label}</div>
+        {/* ════════════════ STATS ════════════════ */}
+        <section className="py-20 px-6 border-y border-border/50 bg-muted/10">
+          <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-12">
+            {[
+              { val: 10000, suffix: "+", label: "Concurrent users", icon: Users },
+              { val: 50, suffix: "ms", label: "Real-time latency", icon: Zap },
+              { val: 99, suffix: ".9%", label: "Uptime SLA", icon: Shield },
+              { val: 5000000, suffix: "+", label: "Questions processed", icon: MessageSquare },
+            ].map((s, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+                className="text-center"
+              >
+                <s.icon className="w-5 h-5 mx-auto mb-4 text-muted-foreground/40" />
+                <div className="serif text-4xl md:text-5xl text-foreground mb-2 tracking-tight">
+                  <Counter to={s.val} suffix={s.suffix} />
                 </div>
-              ))}
-            </div>
+                <div className="text-xs text-muted-foreground uppercase tracking-widest">{s.label}</div>
+              </motion.div>
+            ))}
           </div>
         </section>
 
-        {/* Features Section */}
-        <section id="features" className="w-full py-24 lg:py-32">
-          <div className="container px-6 md:px-12 mx-auto">
-            <div className="text-center max-w-3xl mx-auto mb-20">
-              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-slate-900 dark:text-white mb-6">
-                Everything you need to engage
+        {/* ════════════════ FEATURES ════════════════ */}
+        <section id="features" className="py-28 px-6">
+          <div className="max-w-6xl mx-auto">
+            <div className="max-w-2xl mb-20">
+              <p className="text-xs font-bold uppercase tracking-widest text-primary mb-4">Features</p>
+              <h2 className="serif font-bold text-foreground leading-tight mb-6" style={{ fontSize: "clamp(2rem,5vw,3.5rem)" }}>
+                Every tool you need,<br />nothing you don't.
               </h2>
-              <p className="text-slate-600 dark:text-zinc-400 text-lg leading-relaxed">
-                AudienceAI packs a powerful suite of tools designed to make every presentation interactive, memorable, and friction-free.
+              <p className="text-muted-foreground text-lg leading-relaxed">
+                Built for conference stages, corporate all-hands, and university lectures alike.
               </p>
             </div>
-            
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {features.map((feature, idx) => (
-                <div
-                  key={idx}
-                  className="group relative p-8 bg-white dark:bg-zinc-900 rounded-3xl border border-slate-200/80 dark:border-zinc-800 shadow-sm hover:shadow-xl hover:shadow-blue-500/5 dark:hover:shadow-blue-500/10 transition-all duration-500 hover:-translate-y-1"
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+              {features.map((f, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 24 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.07 }}
+                  onMouseEnter={() => setHoveredFeature(i)}
+                  onMouseLeave={() => setHoveredFeature(null)}
+                  className={`feature-wrap card-lift relative overflow-hidden rounded-2xl border p-8 bg-card ${f.bgClass}`}
                 >
-                  <div className={`p-4 rounded-2xl w-fit mb-6 bg-gradient-to-br ${feature.gradient} border border-black/5 dark:border-white/5`}>
-                    <feature.icon className={`h-6 w-6 ${feature.iconColor}`} />
+                  <span className="absolute top-6 right-6 text-xs font-mono text-muted-foreground/25">{f.label}</span>
+
+                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-6 ${f.iconBg}`}>
+                    <f.icon className={`w-5 h-5 ${f.accentClass}`} />
                   </div>
-                  <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3 tracking-tight">{feature.title}</h3>
-                  <p className="text-slate-600 dark:text-slate-400 leading-relaxed text-sm">
-                    {feature.description}
-                  </p>
-                  <div className="absolute bottom-8 right-8 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <ArrowRight className={`w-5 h-5 ${feature.iconColor}`} />
-                  </div>
-                </div>
+
+                  <h3 className="font-bold text-card-foreground text-lg mb-3 tracking-tight">{f.title}</h3>
+                  <p className="text-muted-foreground text-sm leading-relaxed">{f.description}</p>
+                  <div className="feature-bar" />
+                </motion.div>
               ))}
             </div>
           </div>
         </section>
 
-        {/* Pricing Section */}
-        <section id="pricing" className="w-full py-24 lg:py-32 bg-slate-50/50 dark:bg-zinc-900/20 border-t border-slate-200/50 dark:border-zinc-800/50">
-          <div className="container px-6 md:px-12 mx-auto">
-            <div className="text-center max-w-3xl mx-auto mb-20">
-              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-slate-900 dark:text-white mb-6">Simple, transparent pricing</h2>
-              <p className="text-slate-600 dark:text-zinc-400 text-lg">Start for free, upgrade when your audience grows.</p>
+        {/* ════════════════ TESTIMONIALS ════════════════ */}
+        <section className="py-28 px-6 border-t border-border/50 bg-muted/5">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-16">
+              <p className="text-xs font-bold uppercase tracking-widest text-primary mb-4">Testimonials</p>
+              <h2 className="serif font-bold text-foreground" style={{ fontSize: "clamp(2rem,5vw,3rem)" }}>
+                Presenters love it.
+              </h2>
             </div>
-            
-            <div className="grid gap-8 md:grid-cols-3 max-w-6xl mx-auto items-center">
-              {/* Starter */}
-              <div className="p-8 md:p-10 bg-white dark:bg-zinc-900 rounded-3xl border border-slate-200 dark:border-zinc-800 shadow-sm transition-transform hover:-translate-y-1 duration-300">
-                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Starter</h3>
-                <div className="text-5xl font-extrabold text-slate-900 dark:text-white mb-4">$0 <span className="text-lg font-medium text-slate-500">/mo</span></div>
-                <p className="text-sm text-slate-500 dark:text-slate-400 mb-8 max-w-[250px]">Perfect for small meetups and casual presenters.</p>
-                <ul className="space-y-4 mb-10">
-                  {[ "Up to 50 participants", "Unlimited Questions", "Basic Polls (Single Choice)", "AI Clustering (3/session)" ].map((item, i) => (
-                    <li key={i} className="flex items-center gap-3 text-sm font-medium text-slate-700 dark:text-slate-300">
-                      <CheckCircle className="w-5 h-5 text-emerald-500 shrink-0" /> {item}
-                    </li>
-                  ))}
-                </ul>
-                <Button variant="outline" className="w-full rounded-xl h-12 border-slate-200 dark:border-zinc-700 font-semibold hover:bg-slate-50 dark:hover:bg-zinc-800 text-slate-900 dark:text-white">Get Started</Button>
-              </div>
 
-              {/* Pro */}
-              <div className="relative p-8 md:p-12 bg-white dark:bg-zinc-900 rounded-3xl border-2 border-blue-600 shadow-2xl shadow-blue-500/15 transform md:-translate-y-4 z-10 w-full overflow-hidden">
-                <div className="absolute top-0 right-0 -mr-6 -mt-6 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl pointer-events-none" />
-                <div className="absolute top-4 right-6 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest">Popular</div>
-                
-                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Pro</h3>
-                <div className="text-5xl font-extrabold text-slate-900 dark:text-white mb-4">$29 <span className="text-lg font-medium text-slate-500">/mo</span></div>
-                <p className="text-sm text-slate-500 dark:text-slate-400 mb-8 max-w-[250px]">Everything you need to engage large scale events and conferences.</p>
-                <ul className="space-y-4 mb-10">
-                  {[ "Up to 500 participants", "Advanced AI Insights", "All 5 Poll Types", "Custom Branding", "Export Analytics", "Priority Support" ].map((item, i) => (
-                    <li key={i} className="flex items-center gap-3 text-sm font-medium text-slate-700 dark:text-slate-300">
-                      <CheckCircle className="w-5 h-5 text-blue-600 shrink-0" /> {item}
-                    </li>
-                  ))}
-                </ul>
-                <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-xl h-12 font-semibold shadow-lg shadow-blue-500/25 transition-all">Upgrade Now</Button>
-              </div>
-
-              {/* Enterprise */}
-              <div className="p-8 md:p-10 bg-white dark:bg-zinc-900 rounded-3xl border border-slate-200 dark:border-zinc-800 shadow-sm transition-transform hover:-translate-y-1 duration-300">
-                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Enterprise</h3>
-                <div className="text-5xl font-extrabold text-slate-900 dark:text-white mb-4">Custom</div>
-                <p className="text-sm text-slate-500 dark:text-slate-400 mb-8 max-w-[250px]">Advanced security, unlimited scale, and premium support.</p>
-                <ul className="space-y-4 mb-10">
-                  {[ "Unlimited participants", "Single Sign-On (SSO)", "Dedicated Manager", "SLA & 99.9% Uptime", "Audit Logs", "Whitelabeling" ].map((item, i) => (
-                    <li key={i} className="flex items-center gap-3 text-sm font-medium text-slate-700 dark:text-slate-300">
-                      <CheckCircle className="w-5 h-5 text-slate-800 dark:text-slate-400 shrink-0" /> {item}
-                    </li>
-                  ))}
-                </ul>
-                <Button variant="outline" className="w-full rounded-xl h-12 border-slate-200 dark:border-zinc-700 font-semibold hover:bg-slate-50 dark:hover:bg-zinc-800 text-slate-900 dark:text-white">Contact Sales</Button>
-              </div>
+            <div className="grid md:grid-cols-3 gap-6">
+              {testimonials.map((t, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 24 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.1 }}
+                  className="card-lift p-8 rounded-2xl border border-border bg-card"
+                >
+                  <div className="flex gap-1 mb-6">
+                    {[...Array(5)].map((_, j) => (
+                      <Star key={j} className="w-4 h-4 fill-current text-amber-400" />
+                    ))}
+                  </div>
+                  <p className="text-muted-foreground text-sm leading-relaxed mb-8">"{t.content}"</p>
+                  <div className="flex items-center gap-3">
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold ${t.colorClass}`}>
+                      {t.initials}
+                    </div>
+                    <div>
+                      <div className="text-sm font-semibold text-card-foreground">{t.name}</div>
+                      <div className="text-xs text-muted-foreground">{t.role}</div>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
             </div>
           </div>
         </section>
 
-        {/* CTA Section */}
-        <section className="w-full py-24 mb-12">
-          <div className="container px-6 md:px-12 mx-auto">
-            <div className="relative overflow-hidden rounded-3xl bg-slate-900 dark:bg-zinc-900 p-12 md:p-20 text-center border border-slate-800">
-              <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff10_1px,transparent_1px),linear-gradient(to_bottom,#ffffff10_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-20" />
-               <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-600/20 blur-[100px] rounded-full -translate-y-1/2 translate-x-1/3 pointer-events-none" />
-              
-              <div className="relative z-10 max-w-3xl mx-auto">
-                <h2 className="text-3xl md:text-5xl font-bold text-white mb-6 tracking-tight">
-                  Ready to transform your presentations?
+        {/* ════════════════ PRICING ════════════════ */}
+        <section id="pricing" className="py-28 px-6 border-t border-border/50">
+          <div className="max-w-5xl mx-auto">
+            <div className="text-center mb-16">
+              <p className="text-xs font-bold uppercase tracking-widest text-primary mb-4">Pricing</p>
+              <h2 className="serif font-bold text-foreground mb-4" style={{ fontSize: "clamp(2rem,5vw,3rem)" }}>
+                Simple, honest pricing.
+              </h2>
+              <p className="text-muted-foreground">Start free. Upgrade when you need it.</p>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-6 items-center">
+              {plans.map((plan, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 24 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.1 }}
+                  className={`card-lift rounded-3xl p-8 md:p-10 relative overflow-hidden ${
+                    plan.highlight ? "plan-pro bg-card md:-translate-y-4" : "border border-border bg-card"
+                  }`}
+                >
+                  {plan.highlight && (
+                    <div className="absolute top-6 right-6">
+                      <span className="text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full text-primary bg-primary/10 border border-primary/20">
+                        Popular
+                      </span>
+                    </div>
+                  )}
+
+                  <h3 className="font-bold text-card-foreground text-lg mb-2">{plan.name}</h3>
+                  <div className="flex items-baseline gap-1 mb-3">
+                    <span className="serif text-5xl text-foreground tracking-tight">{plan.price}</span>
+                    {plan.period && <span className="text-muted-foreground text-sm">{plan.period}</span>}
+                  </div>
+                  <p className="text-sm text-muted-foreground mb-8">{plan.desc}</p>
+
+                  <ul className="space-y-3 mb-10">
+                    {plan.items.map((item, j) => (
+                      <li key={j} className="flex items-center gap-3 text-sm text-muted-foreground">
+                        <CheckCircle className={`w-4 h-4 shrink-0 ${plan.highlight ? "text-primary" : "text-muted-foreground/50"}`} />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+
+                  <button
+                    className={`w-full py-3 rounded-xl text-sm font-semibold transition-all ${
+                      plan.highlight
+                        ? "btn-primary"
+                        : "bg-secondary text-secondary-foreground hover:bg-secondary/80 border border-border"
+                    }`}
+                  >
+                    {plan.cta}
+                  </button>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ════════════════ CTA BANNER ════════════════ */}
+        <section className="py-24 px-6">
+          <div className="max-w-4xl mx-auto">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="mesh-gradient relative rounded-3xl overflow-hidden p-12 md:p-20 text-center glass"
+            >
+              <div
+                className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[250px] pointer-events-none"
+                style={{ background: "radial-gradient(ellipse at top, oklch(0.6 0.22 260 / 0.15) 0%, transparent 70%)" }}
+              />
+              <div className="relative z-10">
+                <h2 className="serif font-bold text-foreground mb-6 leading-tight" style={{ fontSize: "clamp(2rem,5vw,3.5rem)" }}>
+                  Ready to transform<br />your presentations?
                 </h2>
-                <p className="text-slate-400 text-lg mb-10 leading-relaxed">
-                  Join thousands of presenters who use AudienceAI to create deeply engaging, interactive sessions that audiences love.
+                <p className="text-muted-foreground text-lg mb-10 max-w-xl mx-auto leading-relaxed">
+                  Join thousands of presenters who run smarter, more memorable sessions with AudienceAI.
                 </p>
                 <Link href="/dashboard">
-                  <Button size="lg" className="bg-white text-slate-900 hover:bg-slate-100 shadow-[0_0_30px_rgba(255,255,255,0.2)] font-bold px-10 h-14 rounded-full transition-all group">
+                  <button className="btn-primary font-bold px-10 h-14 rounded-full text-base flex items-center gap-2 group mx-auto">
                     Get Started Free
-                    <ArrowRight className="ml-2 h-5 w-5 text-slate-500 group-hover:text-slate-900 transition-colors" />
-                  </Button>
+                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  </button>
                 </Link>
-                <p className="mt-6 text-sm text-slate-500">No credit card required. Setup in 2 minutes.</p>
+                <p className="mt-6 text-xs text-muted-foreground/50">No credit card required · Setup in 2 minutes</p>
               </div>
-            </div>
+            </motion.div>
           </div>
         </section>
       </main>
 
-      {/* Footer */}
-      <footer className="py-12 px-6 border-t border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 mt-auto">
-        <div className="container mx-auto">
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-8 mb-12">
+      {/* ════════════════ FOOTER ════════════════ */}
+      <footer className="border-t border-border/50 py-16 px-6 bg-muted/10">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-10 mb-14">
             <div className="col-span-2">
-              <Logo className="mb-4" />
-              <p className="text-sm text-slate-500 dark:text-slate-400 max-w-xs mt-4">
-                The complete audience engagement platform for modern presenters. Focus on what matters, let AI handle the rest.
+              <Link href="/" className="flex items-center gap-2 mb-5 w-fit group">
+                <div className="w-8 h-8 rounded-xl flex items-center justify-center bg-primary transition-transform group-hover:scale-105">
+                  <Mic className="w-4 h-4 text-primary-foreground" />
+                </div>
+                <span className="font-bold tracking-tight">AudienceAI</span>
+              </Link>
+              <p className="text-sm text-muted-foreground max-w-xs leading-relaxed">
+                The complete audience engagement platform for modern presenters. Focus on what matters — let AI handle the rest.
               </p>
             </div>
-            <div>
-              <h4 className="font-semibold text-slate-900 dark:text-white mb-4">Product</h4>
-              <ul className="space-y-3 text-sm text-slate-500 dark:text-slate-400">
-                <li><Link href="#" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Features</Link></li>
-                <li><Link href="#" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Pricing</Link></li>
-                <li><Link href="#" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Demo</Link></li>
-                <li><Link href="#" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Changelog</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold text-slate-900 dark:text-white mb-4">Company</h4>
-              <ul className="space-y-3 text-sm text-slate-500 dark:text-slate-400">
-                <li><Link href="#" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">About</Link></li>
-                <li><Link href="#" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Blog</Link></li>
-                <li><Link href="#" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Careers</Link></li>
-                <li><Link href="#" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Contact</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold text-slate-900 dark:text-white mb-4">Legal</h4>
-              <ul className="space-y-3 text-sm text-slate-500 dark:text-slate-400">
-                <li><Link href="#" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Terms of Service</Link></li>
-                <li><Link href="#" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Privacy Policy</Link></li>
-                <li><Link href="#" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Security</Link></li>
-              </ul>
-            </div>
+            {[
+              { title: "Product", links: ["Features", "Pricing", "Demo", "Changelog"] },
+              { title: "Company", links: ["About", "Blog", "Careers", "Contact"] },
+              { title: "Legal", links: ["Terms", "Privacy", "Security"] },
+            ].map((col, i) => (
+              <div key={i}>
+                <h4 className="text-xs font-bold uppercase tracking-widest text-muted-foreground/50 mb-5">{col.title}</h4>
+                <ul className="space-y-3">
+                  {col.links.map((l) => (
+                    <li key={l}>
+                      <Link href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                        {l}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
           </div>
-          
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4 pt-8 border-t border-slate-200 dark:border-zinc-800">
-            <p className="text-sm text-slate-500 dark:text-slate-400">© 2026 AudienceAI. All rights reserved. Built for presenters.</p>
-            <div className="flex gap-6">
-              <Link href="#" className="text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-                <Globe className="w-5 h-5" />
-              </Link>
-              <Link href="#" className="text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-                <ExternalLink className="w-5 h-5" />
-              </Link>
-              <Link href="#" className="text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-                <Layout className="w-5 h-5" />
-              </Link>
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4 pt-8 border-t border-border/50">
+            <p className="text-xs text-muted-foreground/50">© 2026 AudienceAI. All rights reserved.</p>
+            <div className="flex gap-5">
+              {[Globe, ExternalLink, Layout].map((Icon, i) => (
+                <Link key={i} href="#" className="text-muted-foreground/40 hover:text-muted-foreground transition-colors">
+                  <Icon className="w-4 h-4" />
+                </Link>
+              ))}
             </div>
           </div>
         </div>
