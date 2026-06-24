@@ -14,7 +14,7 @@
 
 **AudienceAI** is a premium, real-time presentation companion built for the modern speaker. Forget clunky, outdated Q&A panels. AudienceAI provides presenters and audiences with stunning, glassmorphic interfaces that make interaction seamless, engaging, and gorgeous. 
 
-Participants simply scan a generated QR code from their phones to ask questions and vote on live polls instantly. The presenter receives real-time inputs natively on their dashboard, complete with **Llama 3.3 AI Intelligence** to automatically cluster similar questions and suggest smart answers on the fly.
+Participants simply scan a generated QR code from their phone to ask questions and vote on live polls instantly. The presenter receives real-time inputs natively on their dashboard, complete with **Llama 3.3 AI Intelligence** to automatically cluster similar questions and suggest smart answers on the fly.
 
 ---
 

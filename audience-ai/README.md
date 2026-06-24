@@ -9,7 +9,7 @@
 [Features](#-features) • [Screenshots](#-premium-interfaces) • [Tech Stack](#-tech-stack) • [Getting Started](#-getting-started) • [Deployment](#-deployment)
 
 </div>
-
+..
 ---
 
 ## 🚀 Overview
